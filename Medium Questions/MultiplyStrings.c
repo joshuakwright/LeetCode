@@ -1,4 +1,98 @@
-//My shitty broken solution that doesn't work
+// Final Super fast solution
+
+char * 
+multiply(char * num1, char * num2){
+    int num1Size = strlen(num1), num2Size = strlen(num2);
+    if(*num1 == '0' || *num2 == '0') return "0";
+    int maxLen = num1Size + num2Size;
+    
+    int *numAns = malloc(sizeof(int) * (maxLen));
+    memset(numAns, 0, sizeof(int)*maxLen);
+    
+    for (int i = num1Size - 1; i >= 0; i--) {
+        for(int j = num2Size - 1; j >= 0; j--) {
+            numAns[i+j+1] += (num1[i] - '0') * (num2[j] - '0');
+        }
+    }
+    
+    for(int i = maxLen - 1; i > 0; i--) {
+        numAns[i - 1] += numAns[i] / 10;
+        numAns[i] %= 10;
+    }
+    
+    char *finalAns = (char*)malloc(sizeof(char) * (maxLen + 1));
+    int index = 0;
+    int i = numAns[i] == 0 ? 1 : 0;
+    
+    while (i < maxLen) {
+        finalAns[index++] = numAns[i++] + '0';
+    }
+    finalAns[index] = '\0';
+    free(numAns);
+    
+    return finalAns; //finalAns will need to be freed in calling function
+}
+
+// Working solution but slow 
+
+char * 
+multiply(char * num1, char * num2){
+    int num1Size = 0, num2Size = 0;
+    for(int i = 0; num1[i] != '\0'; i++) num1Size++;
+    for(int i = 0; num2[i] != '\0'; i++) num2Size++;
+    if((num1Size == 1 && num1[0] == '0') || (num2Size == 1 && num2[0] == '0')) return "0";
+    
+    int **multList = malloc(sizeof(int**) * num2Size);
+    for(int i = 0; i < num2Size; i++) multList[i] = malloc(sizeof(int*) * (num1Size + num2Size));
+    
+    for (int i = num2Size - 1; i >= 0; i--) {
+        int carry = 0;
+        int j;
+        for (j = num1Size + num2Size - 1; j > num1Size + i; j--) multList[i][j] = 0;
+        for (int k = num1Size - 1; k >= 0; k--, j--) {
+            int mult = (num1[k] - '0') * (num2[i] - '0') + carry;
+            carry = mult / 10;
+            multList[i][j] = mult % 10; 
+        }
+        
+        if(carry) {
+            multList[i][j] = carry;
+        }
+        else {
+            multList[i][j] = 0;
+        }
+        
+        while (--j >= 0) {
+            multList[i][j] = 0;
+        }
+    }
+    
+    char *finalAns = malloc(sizeof(char *) * (num1Size + num2Size + 1));
+    finalAns[num1Size + num2Size] = '\0';
+    int j;
+    int carry = 0;
+    for(j = num1Size + num2Size - 1; j >= 0; j--) {
+        int columnSum = 0;
+        for(int i = 0; i < num2Size; i++) columnSum += multList[i][j];
+        columnSum += carry;
+        carry = columnSum / 10;
+        finalAns[j] = (columnSum % 10) + '0';
+    }
+    for(int i = 0; i < num2Size; i++) free(multList[i]);
+    free(multList);
+    
+    char *altAns;
+    if(finalAns[0] == '0') {
+        altAns = malloc(sizeof(char *) * (num1Size + num2Size));
+        strcpy(altAns, (finalAns + 1));
+        free(finalAns);
+        return altAns;
+    }
+    
+    return finalAns;
+}
+
+//My shitty initial broken solution that doesn't work
 
 char * multiply(char * num1, char * num2){
     int num1Size = 0, num2Size = 0;
@@ -29,7 +123,7 @@ char * multiply(char * num1, char * num2){
         }
         
         double finalNum = 0;
-        for(int i = 0; i < num2Size; i++) {
+        for(int i = 0; i < num2Size; i++) { 
             finalNum += addList[i];
         }
         free(addList);
