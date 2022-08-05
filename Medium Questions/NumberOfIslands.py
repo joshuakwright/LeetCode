@@ -1,4 +1,38 @@
-//initial fast solution
+# breadth first iterative solution:
+
+class Solution(object):
+    def numIslands(self, grid):
+        """
+        :type grid: List[List[str]]
+        :rtype: int
+        """
+        row = len(grid)
+        col = len(grid[0])
+        islands = 0
+        for i in range(row):
+            for j in range(col):
+                if grid[i][j] == "1":
+                    islands += 1
+                    grid[i][j] = 0
+                    queue = deque([(i, j)])
+                    while queue:
+                        k, l = queue.popleft()
+                        if k - 1 >= 0 and grid[k-1][l] == "1":
+                            grid[k-1][l] = 0
+                            queue.append((k - 1, l))
+                        if k + 1 < row and grid[k+1][l] == "1":
+                            grid[k+1][l] = 0
+                            queue.append((k + 1, l))
+                        if l - 1 >= 0 and grid[k][l-1] == "1":
+                            grid[k][l-1] = 0
+                            queue.append((k, l - 1))
+                        if l + 1 < col and grid[k][l+1] == "1":
+                            grid[k][l+1] = 0
+                            queue.append((k, l + 1))
+                            
+        return islands
+
+# recursive DFS initial fast solution
 
 class Solution(object):
     def numIslands(self, grid):
